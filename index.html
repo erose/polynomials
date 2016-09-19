@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
+</head>
+
+<script type="text/babel">
+  import Polynomial from "Polynomial";
+
+  class Q extends Array {
+    // Polynomials are represented as lists of coefficients, the coefficient of 1 occuring first.
+
+    constructor(...args) {
+      super();
+      for (var i = 0; i < args.length; i++){
+        this[i] = args[i];
+      }
+      for (var i = this.length; i < 20; i++){
+        this[i] = 0;
+      }
+    }
+
+    display = function(){
+      var result = [];
+      _.each(this, function(coeff, i){
+          if (coeff == 0){
+            return true; // Skip these terms.
+          }
+          if (i === 0){ result.push(coeff); }
+          else if (coeff == 1){ result.push("x^" + i); }
+          else if (i === 1){ result.push(coeff + "x"); }
+          else result.push(coeff + "x^" + i);
+      });
+      return result.join(" + ");
+    }
+
+    rshift = function(n){
+      // Multiplies by x^n.
+      return Array(n).fill(0).concat(this);
+    }
+
+    add = function(other){
+      return new Polynomial(... _.zip(this, other).map(_.sum));
+    }
+
+    mul = function(other){
+      // If A(x) = (a_0 + a_1x + a_2x^2 + ...) and B(x) = (b_0 + b_1x + b_2x^2 + ...)
+      // computes A*B computing (a_0*B + a_1*B + ... + b_0A + b_1A + ...)
+  
+      var summands = this.map((coeff, i) =>
+        new Polynomial(... other.map(x => coeff * x)).rshift(i)
+      );
+      return _.reduce(summands, (a, b) => a.add(b), new Polynomial());
+    }
+
+    div = function(other){
+      // Returns the result of dividing this polynomial by the other one.
+      
+    }
+  }
+</script>
+
+<body>
+</body
